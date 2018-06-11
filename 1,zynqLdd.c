@@ -84,15 +84,14 @@ static int __init axi_gpio_driver_module_init(void)
 	printk("before Gpio_DATA:%lx,%lx.\n",Gpio_DATA,ioread32(Gpio_DATA));
 	*Gpio_DIR = (unsigned long )0x00000000;       //设置AXI GPIO的方向输出  
 	*Gpio_DATA = (unsigned long )0x00000005;     //设置AXI GPIO的方向输出全为高  
-	//iowrite32(0x00000000,Gpio_DIR);  //设置AXI GPIO的方向输出  
-	//iowrite32(0x00000000,Gpio_DATA); //设置AXI GPIO的方向输出全为高  
+     
 	printk("after Gpio_DIR:%lx,%lx.\n",Gpio_DIR,*Gpio_DIR);
 	printk("after Gpio_DATA:%lx,%lx.\n",Gpio_DATA,*Gpio_DATA);
 	return 0;
 }  
 static void __exit axi_gpio_driver_module_exit(void)  
 {  
-
+    //仅仅为了测试
 	*Gpio_DATA = (unsigned long )0x0000000F;     //设置AXI GPIO的方向输出全为高  
 
     iounmap((void *)axi_gpio_virt_addr); //撤销映射关系
