@@ -1,5 +1,6 @@
 //在init,exit中直接控制GPIO寄存器
-//低4位控制LED
+// 功能：能够通过低4位控制AXI LED
+// 缺点： linux不推荐这种方式，并且打印寄存器值也有问题
 
 #include <linux/module.h>  
 #include <linux/kernel.h>  
