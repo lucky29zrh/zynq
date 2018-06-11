@@ -1,7 +1,15 @@
 //在init,exit中直接控制GPIO寄存器
 // 功能：能够通过低4位控制AXI LED
 // 缺点： linux不推荐这种方式，并且打印寄存器值也有问题
-
+/*
+输出:
+axi_gpio driver initial successfully!
+ioremap called: phys 0x41200000 -> virt 0xf09fc000
+before Gpio_DIR:f09fc004,0.
+before Gpio_DATA:f09fc000,0.
+after Gpio_DIR:f09fc004,0.
+after Gpio_DATA:f09fc000,0.
+*/
 #include <linux/module.h>  
 #include <linux/kernel.h>  
 #include <linux/fs.h>  
