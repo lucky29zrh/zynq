@@ -85,7 +85,7 @@ static int __init axi_gpio_driver_module_init(void)
 static void __exit axi_gpio_driver_module_exit(void)
 {  
     cdev_del(&gpio_cdev);//删除驱动gpio_cdev
-	device_destroy(gpio_driver_class, MKDEV(gpio_devno, 0));  
+    device_destroy(gpio_driver_class, gpio_devno);  
     class_unregister(gpio_driver_class);  
     class_destroy(gpio_driver_class);  
     unregister_chrdev_region(gpio_devno,NUMBER_OF_DEVICES);//释放设备号  
@@ -93,7 +93,6 @@ static void __exit axi_gpio_driver_module_exit(void)
    
 module_init(axi_gpio_driver_module_init);
 module_exit(axi_gpio_driver_module_exit);  
-
 
 MODULE_AUTHOR("Xilinx ");  
 MODULE_DESCRIPTION("AXI GPIO moudle dirver");  
