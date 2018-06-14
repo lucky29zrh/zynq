@@ -53,7 +53,7 @@ static int axi_gpio_open(struct inode *inode, struct file *filp)
 {
 	//printk("axi_gpio_open\n");
 
-	//配置led管脚为输出
+	//配置key管脚为输入
 	printk("before Gpio_DIR:%lx,%lx.\n",Gpio_DIR,ioread32(Gpio_DIR));
 	
 	iowrite32(0x0000000F,Gpio_DIR);  //设置AXI GPIO的方向输入 
