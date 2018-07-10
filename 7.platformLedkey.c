@@ -2,14 +2,6 @@
 
 mydrv.c
 -------
-/*
-修改说明： 该代码AXI key按键值读取
-修改之处：1) 基地址为0x41210000
-         2）open函数实现方向配置(输出)
-         3) read函数中实现按键值读取并传到用户空间
-注意copy_to_user 传输数据为4字节，读取时也读取了4字节
-*/
-
 #include <linux/module.h>  
 #include <linux/kernel.h>  
 #include <linux/fs.h>  
@@ -19,7 +11,8 @@ mydrv.c
 #include <linux/device.h>  		  //包含了device、class 等结构的定义
 #include <asm/io.h>               //包含了ioremap、iowrite等内核访问IO内存等函数
 #include <linux/uaccess.h>        //包含了copy_to_user、copy_from_user等
-
+#include <linux/slab.h>
+#include <linux/interrupt.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
 #include <linux/of_platform.h>
@@ -137,6 +130,7 @@ static void  axi_gpio_driver_module_exit(void)
 	//撤销映射关系 
        iounmap((void *)axi_led_virt_addr); 
        iounmap((void *)axi_key_virt_addr); 
+	   //free_irq(lp->irq, (void *));
 #if 0
 	release_mem_region(XGPIO_PHY_ADDR, 0x1000);
 #endif
@@ -150,10 +144,17 @@ static void  axi_gpio_driver_module_exit(void)
 //module_init(axi_gpio_driver_module_init);  
 //module_exit(axi_gpio_driver_module_exit);  
 
+
+static irqreturn_t mymodule_irq(int irq, void *lp)
+{
+	printk("mymodule interrupt %d\n",irq);
+	return IRQ_HANDLED;
+}
+
 static int leddrv_probe(struct platform_device *pdev)
 {
-	int ret;	
-	printk("match ok!");
+	int rc = 0;	
+	printk("match ok!\n");
 	struct resource *r_irq; /* Interrupt resources */
 	struct resource *r_mem; /* IO mem resources */
 
@@ -184,6 +185,22 @@ static int leddrv_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 	printk("1 start: %#08x end:%08x\n",r_mem->start,r_mem->end);
+	//
+    /* Get IRQ for the device */
+	r_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+	if (!r_irq) {
+		printk("no IRQ found\n");
+		return 0;
+	}
+	printk("IRQ :%d\n",r_irq->start);
+    rc = request_irq(r_irq->start, &mymodule_irq, 0, DEVICE_NAME, (void *)1);
+	if (rc) {
+		printk("testmodule: Could not allocate interrupt %d.\n",
+			r_irq->end);
+		return 0;
+	}
+
+
 	//指定需要操作LED的寄存器的地址
 	Gpioled_DIR =  (unsigned long *)(axi_led_virt_addr + XGPIO_TRI_OFFSET);
 	Gpioled_DATA = (unsigned long *)(axi_led_virt_addr + XGpio_DATA_OFFSET);
@@ -259,7 +276,9 @@ static struct resource gpio_resource[] =
 		.flags = IORESOURCE_MEM,  //sws_key
 	},
 	[2] ={
-		.flags = IORESOURCE_IRQ,
+		.start = 61,
+		.end = 61,
+		.flags = IORESOURCE_IRQ,  //interrupt
 	}
 	
 };
