@@ -204,19 +204,13 @@ void*consumer(void*arg){
 }
 int main() 
 {
-/*
-	
-	
-
-	sem_post(&cmd_sem);	
-*/
 	sem_init(&cmd_sem,0,0);
 
 	pthread_t pro,con;
 	pthread_create(&pro,NULL,productor,NULL);
-    pthread_create(&con,NULL,consumer,NULL);
+   	 pthread_create(&con,NULL,consumer,NULL);
 	pthread_join(pro,NULL);
-    pthread_join(con,NULL);
+    	pthread_join(con,NULL);
  
   
 	return 0;
