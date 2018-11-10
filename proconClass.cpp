@@ -1,3 +1,5 @@
+//此代码有个缺点：若生产者生产速率特别快，将内存占用完了死机了怎么办？
+
 #include "CMsgQueue.h"
 #include <arpa/inet.h>
 #include <semaphore.h>
@@ -59,7 +61,7 @@ void Productor::productData() {
 		pqueue->push(cmd);
 		sem_post(&cmd_sem);
 
-		//usleep(1);
+		usleep(1);
 	}
 	printf("protductor\n");
 }
@@ -103,7 +105,7 @@ void Consumer::execute(void) {
 	CMDREQ cmd;
 	while(1) {
         if(pqueue->size()>0) {
-			printf("size:%d  ",pqueue->size());
+			//printf("size:%d  ",pqueue->size());
 
             // Get one command.
             if(pqueue->pop(&cmd)<0){
@@ -111,7 +113,7 @@ void Consumer::execute(void) {
             }
 			conbuf = reinterpret_cast<uint8_t*>(cmd.buf);
 			conIndex = cmd.index;
-			printf("index:%d buf:%s\n",conIndex,conbuf);
+			printf("size:%d index:%d buf:%s\n",pqueue->size(),conIndex,conbuf);
 
 			operator delete(cmd.buf);
 			//usleep(1);
